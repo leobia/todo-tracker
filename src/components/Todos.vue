@@ -42,7 +42,7 @@
         },
         computed: {
             ...mapState({
-                todos: state => state.todos,
+                todos: state => state.todos.sort((x, y) => x.done === y.done ? 0 : x.done ? 1 : -1),
                 isLoading: state => state.isLoading
             }),
             ...mapGetters([
@@ -51,27 +51,27 @@
         },
         methods: {
             select(index, row) {
-                this.todos.forEach(todo => {
-                    todo.selected = false
-                })
-                row.selected = !row.selected
-                this.$set(this.todos, index, row);
+                const lastUpdate = row.update_date;
+                const now = new Date();
+                const selected = row.selected;
+                if (selected) {
+                    var diffMins = Math.round((((now - lastUpdate) % 86400000) % 3600000) / 60000);
+                    row.minutes += diffMins;
+                }
+                row.selected = !row.selected;
+                row.update_date = now;
 
+                this.changeSelectTodo(row);
             },
             done(index, row) {
                 row.done = !row.done;
-                this.$set(this.todos, index, row);
+                this.changeStatusTodo(row);
             },
             remove(row) {
                 this.removeTodo(row);
             },
             add(){
-                let todo = {
-                    title: this.title,
-                    minutes: 0,
-                    done: false,
-                    selected: false
-                }
+                let todo = {title: this.title}
                 this.addTodo(todo)
             },
 
@@ -85,7 +85,9 @@
             ...mapActions([
                 'retrieveTodos',
                 'addTodo',
-                'removeTodo'
+                'removeTodo',
+                'changeStatusTodo',
+                'changeSelectTodo'
             ]),
         },
     }

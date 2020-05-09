@@ -10,8 +10,32 @@ const types = {
     RETRIEVE_SUCCESS: 'setTodos',
     RETRIEVE_FAILURE: 'restoreTodos',
     ADD_SUCCESS: 'addTodo',
-    REMOVE_SUCCESS: 'removeTodo'
+    REMOVE_SUCCESS: 'removeTodo',
+    CHANGE_STATUS: 'changeStatusTodo',
+    CHANGE_SELECT: 'changeSelectTodo'
 }
+
+function initNewTodo(title) {
+    return {
+        title: title,
+        done: false,
+        minutes: 0,
+        selected: false,
+        update_date: new Date()
+    }
+}
+
+function readDbTodo(payload) {
+    return {
+        id: payload.id,
+        title: payload.data().title,
+        done: payload.data().done,
+        minutes: payload.data().minutes,
+        selected: payload.data().selected,
+        update_date: payload.data().update_date
+    }
+}
+
 const store = new Vuex.Store({
     state: {
         todos: [],
@@ -47,6 +71,24 @@ const store = new Vuex.Store({
 
         removeTodo(state, oldTodo) {
             state.todos.splice(state.todos.findIndex(t => t.id === oldTodo.id), 1);
+        },
+
+        changeStatusTodo(state, todo) {
+            state.todos.forEach(t => {
+                if (t.id === todo.id) {
+                    t.done = todo.done;
+                }
+            })
+        },
+
+        changeSelectTodo(state, todo) {
+            state.todos.forEach(t => {
+                if (t.id === todo.id) {
+                    t.selected = todo.selected;
+                    t.update_date = todo.update_date;
+                    t.minutes = todo.minutes;
+                }
+            })
         }
     },
     actions: {
@@ -58,14 +100,7 @@ const store = new Vuex.Store({
             todosCollection.get().then(
                 (resultQuery) => {
                     let todosFromDb = []
-                    resultQuery.forEach((doc) => {
-                        todosFromDb.push({
-                            id: doc.id,
-                            title: doc.data().title,
-                            description: doc.data().description,
-                            minutes: doc.data().minutes
-                        })
-                    })
+                    resultQuery.forEach(doc => todosFromDb.push(readDbTodo(doc)))
                     commit(types.RETRIEVE_SUCCESS, todosFromDb);
                     state.isLoading = false;
                 },
@@ -79,10 +114,11 @@ const store = new Vuex.Store({
 
         addTodo({commit, state}, payload) {
             state.isLoading = true;
-            todosCollection.add({title: payload.title})
+            let todo = initNewTodo(payload.title);
+            todosCollection.add(todo)
                 .then((doc) => {
-                    payload.id = doc.id
-                    commit(types.ADD_SUCCESS, payload)
+                    todo.id = doc.id
+                    commit(types.ADD_SUCCESS, todo)
                     state.isLoading = false;
                 })
                 .catch((error) => {
@@ -102,6 +138,30 @@ const store = new Vuex.Store({
                     console.error("Error removing document: ", error);
                     state.isLoading = false;
                 })
+        },
+
+        changeStatusTodo({commit, state}, todo) {
+            state.isLoading = true;
+            todosCollection.doc(todo.id).set(todo)
+                .then(() => {
+                    state.isLoading = false;
+                    commit(types.CHANGE_STATUS, todo)
+                }).catch((error) => {
+                state.isLoading = false;
+                console.error("Error during change of status", error)
+            })
+        },
+
+        changeSelectTodo({commit, state}, todo) {
+            state.isLoading = true;
+            todosCollection.doc(todo.id).set(todo)
+                .then(() => {
+                    state.isLoading = false;
+                    commit(types.CHANGE_SELECT, todo)
+                }).catch((error) => {
+                state.isLoading = false;
+                console.error("Error during change of status", error)
+            })
         }
     }
 });
