@@ -20,7 +20,7 @@
                                :icon="scope.row.selected ? 'el-icon-lock': 'el-icon-unlock'" circle
                                @click="select(scope.$index, scope.row)"></el-button>
                     <el-button type="danger" icon="el-icon-delete" circle
-                               @click="remove(scope.$index, scope.row)"></el-button>
+                               @click="remove(scope.row)"></el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -62,9 +62,8 @@
                 row.done = !row.done;
                 this.$set(this.todos, index, row);
             },
-            remove(index, row) {
-                console.log(index)
-                console.log(row)
+            remove(row) {
+                this.removeTodo(row);
             },
             add(){
                 let todo = {
@@ -85,7 +84,8 @@
             },
             ...mapActions([
                 'retrieveTodos',
-                'addTodo'
+                'addTodo',
+                'removeTodo'
             ]),
         },
     }
