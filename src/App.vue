@@ -1,20 +1,24 @@
 <template>
     <div id="app">
+        <NavMenu></NavMenu>
+        <img src="./assets/logo.png" alt="logo" width="300">
         <el-container>
             <el-main>
-                <Todos />
+                <keep-alive>
+                    <router-view></router-view>
+                </keep-alive>
             </el-main>
         </el-container>
     </div>
 </template>
 
 <script>
-    import Todos from "./components/Todos";
+    import NavMenu from "./components/NavMenu";
 
     export default {
         name: 'app',
         components: {
-            Todos
+            NavMenu
         }
     }
 </script>
@@ -33,6 +37,11 @@
         background-color: #f0f9eb;
         text-decoration: line-through;
     }
+
+    .el-table .selected-row {
+        background-color: #ecf5ff;
+    }
+
 
     .el-popconfirm__main {
         font-family: 'Baloo 2', Helvetica, Arial, sans-serif

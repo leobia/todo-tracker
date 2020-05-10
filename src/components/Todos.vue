@@ -21,15 +21,16 @@
                             iconColor="red"
                             title="Are you sure to delete this?"
                             @onConfirm="deleteOldTodos">
-                        <el-button slot="reference" type="danger" size="small" icon="el-icon-delete" >Delete old done</el-button>
+                        <el-button slot="reference" type="danger" size="small" icon="el-icon-delete">Delete old done
+                        </el-button>
                     </el-popconfirm>
                 </template>
                 <template slot-scope="scope">
                     <el-button type="success" icon="el-icon-check" circle
-                               @click="done(scope.$index, scope.row)"></el-button>
+                               @click="done( scope.row)"></el-button>
                     <el-button :type="scope.row.selected ? 'primary': ''"
                                :icon="scope.row.selected ? 'el-icon-lock': 'el-icon-unlock'" circle
-                               @click="select(scope.$index, scope.row)"></el-button>
+                               @click="select(scope.row)"></el-button>
                     <el-button type="danger" icon="el-icon-delete" circle
                                @click="remove(scope.row)"></el-button>
                 </template>
@@ -49,47 +50,51 @@
             }
         },
         beforeMount() {
-            this.retrieveTodos()
+            this.$store.dispatch('todo/retrieveTodos')
         },
         computed: {
             ...mapState({
-                todos: state => state.todos.sort((x, y) => x.done === y.done ? 0 : x.done ? 1 : -1),
-                isLoading: state => state.isLoading
+                isLoading: state => state.todo.isLoading
             }),
-            ...mapGetters([
-                'openTodos'
-            ])
+            ...mapGetters('todo', {
+                openTodos: 'openTodos',
+                todos: 'sortedTodos'
+            })
         },
         methods: {
-            select(index, row) {
+            select(row) {
                 const lastUpdate = row.update_date;
                 const now = new Date();
-                const selected = row.selected;
+                let selected = row.selected;
+                let minutes = row.minutes;
                 if (selected) {
                     const diffMins = Math.round((((now - lastUpdate) % 86400000) % 3600000) / 60000);
-                    row.minutes += diffMins;
+                    minutes += diffMins;
                 }
-                row.selected = !row.selected;
-                row.update_date = now;
 
-                this.changeSelectTodo(row);
+                selected = !selected;
+                this.$store.commit('todo/modifyTodo', {id: row.id, minutes, selected, update_date: now})
+                this.$store.dispatch('todo/changeSelectTodo', row);
             },
-            done(index, row) {
-                row.done = !row.done;
-                this.changeStatusTodo(row);
+            done(row) {
+                let done = !row.done;
+                this.$store.commit('todo/modifyTodo', {id: row.id, done})
+                this.$store.dispatch('todo/changeStatusTodo', row);
             },
             remove(row) {
-                this.removeTodo(row);
+                this.$store.dispatch('todo/removeTodo', row);
             },
-            add(){
+            add() {
                 let todo = {title: this.title}
-                this.addTodo(todo)
+                this.$store.dispatch('todo/addTodo', todo);
             },
 
             tableRowClassName({row}) {
                 let output = '';
                 if (row.done) {
                     output = 'done-row';
+                } else if (row.selected) {
+                    output = 'selected-row';
                 }
                 return output;
             },
@@ -98,10 +103,10 @@
                 const fiveDaysAgo = now.setDate(now.getDate() - 2);
                 const todosToDelete = this.todos.filter(t => t.done && t.update_date <= fiveDaysAgo);
                 if (todosToDelete.length) {
-                    this.deleteTodos(todosToDelete);
+                    this.$store.dispatch('todo/deleteTodos', todosToDelete);
                 }
             },
-            ...mapActions([
+            ...mapActions('todo', [
                 'retrieveTodos',
                 'addTodo',
                 'removeTodo',
