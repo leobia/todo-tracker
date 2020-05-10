@@ -63,18 +63,26 @@
         },
         methods: {
             select(row) {
-                const lastUpdate = row.update_date;
+                let lastUpdate = row.update_date;
+                if (row.update_date['seconds']) {
+                    lastUpdate = new Date(row.update_date.seconds * 1000);
+                }
                 const now = new Date();
                 let selected = row.selected;
                 let minutes = row.minutes;
+                let diffMins = 0;
                 if (selected) {
-                    const diffMins = Math.round((((now - lastUpdate) % 86400000) % 3600000) / 60000);
+                    diffMins = Math.round((((now - lastUpdate) % 86400000) % 3600000) / 60000);
                     minutes += diffMins;
-                }
 
+                }
                 selected = !selected;
                 this.$store.commit('todo/modifyTodo', {id: row.id, minutes, selected, update_date: now})
                 this.$store.dispatch('todo/changeSelectTodo', row);
+
+                if (!selected) {
+                    this.$store.dispatch('day_activities/addActivity', {minutes: diffMins, update_date: now, id: row.id})
+                }
             },
             done(row) {
                 let done = !row.done;
@@ -100,8 +108,8 @@
             },
             deleteOldTodos() {
                 let now = new Date();
-                const fiveDaysAgo = now.setDate(now.getDate() - 2);
-                const todosToDelete = this.todos.filter(t => t.done && t.update_date <= fiveDaysAgo);
+                const twoDaysAgo = now.setDate(now.getDate() - 2);
+                const todosToDelete = this.todos.filter(t => t.done && t.update_date <= twoDaysAgo);
                 if (todosToDelete.length) {
                     this.$store.dispatch('todo/deleteTodos', todosToDelete);
                 }

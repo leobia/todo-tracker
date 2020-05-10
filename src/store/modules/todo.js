@@ -52,22 +52,27 @@ const getters = {
 
 const actions = {
     retrieveTodos({commit, state}) {
-        const oldTodos = state.todos;
-        commit(types.RETRIEVE_REQUEST);
-        commit(types.SET_LOADING, true);
-        todosCollection.get().then(
-            (resultQuery) => {
-                let todosFromDb = []
-                resultQuery.forEach(doc => todosFromDb.push(readDbTodo(doc)))
-                commit(types.RETRIEVE_SUCCESS, todosFromDb);
-                commit(types.SET_LOADING, false);
-            },
-            (error) => {
-                console.error("Error getting documents: ", error);
-                commit(types.RETRIEVE_FAILURE, oldTodos);
-                commit(types.SET_LOADING, false);
-            }
-        );
+        return new Promise((resolve => {
+            const oldTodos = state.todos;
+            commit(types.RETRIEVE_REQUEST);
+            commit(types.SET_LOADING, true);
+            todosCollection.get().then(
+                (resultQuery) => {
+                    let todosFromDb = []
+                    resultQuery.forEach(doc => todosFromDb.push(readDbTodo(doc)))
+                    commit(types.RETRIEVE_SUCCESS, todosFromDb);
+                    commit(types.SET_LOADING, false);
+                    resolve()
+                },
+                (error) => {
+                    console.error("Error getting documents: ", error);
+                    commit(types.RETRIEVE_FAILURE, oldTodos);
+                    commit(types.SET_LOADING, false);
+                    resolve()
+                }
+            );
+        }))
+
     },
 
     addTodo({commit}, payload) {
