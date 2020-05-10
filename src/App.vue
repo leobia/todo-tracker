@@ -33,4 +33,8 @@
         background-color: #f0f9eb;
         text-decoration: line-through;
     }
+
+    .el-popconfirm__main {
+        font-family: 'Baloo 2', Helvetica, Arial, sans-serif
+    }
 </style>

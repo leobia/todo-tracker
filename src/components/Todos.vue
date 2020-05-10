@@ -13,6 +13,17 @@
             </el-table-column>
             <el-table-column
                     align="right">
+                <template slot="header">
+                    <el-popconfirm
+                            confirmButtonText='OK'
+                            cancelButtonText='No, Thanks'
+                            icon="el-icon-info"
+                            iconColor="red"
+                            title="Are you sure to delete this?"
+                            @onConfirm="deleteOldTodos">
+                        <el-button slot="reference" type="danger" size="small" icon="el-icon-delete" >Delete old done</el-button>
+                    </el-popconfirm>
+                </template>
                 <template slot-scope="scope">
                     <el-button type="success" icon="el-icon-check" circle
                                @click="done(scope.$index, scope.row)"></el-button>
@@ -55,7 +66,7 @@
                 const now = new Date();
                 const selected = row.selected;
                 if (selected) {
-                    var diffMins = Math.round((((now - lastUpdate) % 86400000) % 3600000) / 60000);
+                    const diffMins = Math.round((((now - lastUpdate) % 86400000) % 3600000) / 60000);
                     row.minutes += diffMins;
                 }
                 row.selected = !row.selected;
@@ -82,12 +93,21 @@
                 }
                 return output;
             },
+            deleteOldTodos() {
+                let now = new Date();
+                const fiveDaysAgo = now.setDate(now.getDate() - 2);
+                const todosToDelete = this.todos.filter(t => t.done && t.update_date <= fiveDaysAgo);
+                if (todosToDelete.length) {
+                    this.deleteTodos(todosToDelete);
+                }
+            },
             ...mapActions([
                 'retrieveTodos',
                 'addTodo',
                 'removeTodo',
                 'changeStatusTodo',
-                'changeSelectTodo'
+                'changeSelectTodo',
+                'deleteTodos'
             ]),
         },
     }

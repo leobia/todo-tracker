@@ -162,6 +162,34 @@ const store = new Vuex.Store({
                 state.isLoading = false;
                 console.error("Error during change of status", error)
             })
+        },
+
+        deleteTodos({commit, state}, todos) {
+            const ids = todos.map(t => t.id);
+            state.isLoading = true;
+            let i = 0;
+            todosCollection.where('id', 'in', ids)
+                .get()
+                .then((snapshot) => {
+                    snapshot.forEach((doc) => {
+                        doc.ref.delete().then(() => {
+                            commit(types.REMOVE_SUCCESS, doc.ref)
+                            i++
+                            if (i === ids.length) {
+                                state.isLoading = false;
+                            }
+                        }).catch((error) => {
+                            i++
+                            if (i === ids.length) {
+                                state.isLoading = false;
+                            }
+                            console.error("Error during change of status", error)
+                        })
+                    })
+                }).catch((error) => {
+                    console.error(error)
+                    state.isLoading = false;
+                })
         }
     }
 });
