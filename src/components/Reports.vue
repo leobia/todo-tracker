@@ -9,7 +9,7 @@
                   class="report-list">
             <el-table-column label="Todo" sortable prop="todo_title">
             </el-table-column>
-            <el-table-column label="Date" prop="date" sortable :formatter="dateFormatter">
+            <el-table-column label="Date" prop="date" sortable :formatter="dateFormatter" :filters="reportsDates" :filter-method="filterHandler">
             </el-table-column>
             <el-table-column label="Minutes" sortable prop="minutes">
             </el-table-column>
@@ -43,6 +43,20 @@
         },
 
         computed: {
+            reportsDates() {
+                let output = [];
+                let allDates = this.activities.map(a => a.date.withoutTime());
+
+                allDates = allDates.filter((date, i, self) =>
+                    self.findIndex(d => d.getTime() === date.getTime()) === i
+                )
+
+                allDates.forEach(d => {
+                    output.push({text: d.toLocaleDateString(), value: d.getTime()})
+                })
+
+                return output;
+            },
             ...mapState({
                 loading: state => state.day_activities.actLoading
             }),
@@ -62,6 +76,10 @@
                 if (activitiesToDelete.length) {
                     this.$store.dispatch('day_activities/deleteActivities', activitiesToDelete);
                 }
+            },
+            filterHandler(value, row, column) {
+                const property = column['property'];
+                return row[property].withoutTime().getTime() === value;
             },
             ...mapActions('day_activities', [
                 'retrieveActivities',

@@ -62,3 +62,9 @@ firebase.auth.onAuthStateChanged(() => {
         }).$mount('#app')
     }
 })
+
+Date.prototype.withoutTime = function () {
+    let d = new Date(this);
+    d.setHours(0, 0, 0, 0);
+    return d;
+}
