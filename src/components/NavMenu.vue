@@ -6,7 +6,7 @@
                 <i :class="collapseExpandClass"></i>
                 <span slot="title">{{collapseExpandString}}</span>
             </el-menu-item>
-            <router-link v-for="(route, idx) in routes" :key="idx" :to="route.path">
+            <router-link v-for="(route, idx) in routesFiltered" :key="idx" :to="route.path">
                 <el-menu-item :index="(idx + 1).toString()">
                     <i :class="route.icon"></i>
                     <span slot="title">{{route.title}}</span>
@@ -44,6 +44,15 @@
             },
             collapseExpandClass() {
                 return this.isCollapse ? 'el-icon-arrow-right' : 'el-icon-arrow-left';
+            },
+            routesFiltered() {
+                let routes = [];
+                this.routes.forEach(r => {
+                    if (r.path !== '*' && r.path !== '/login') {
+                        routes.push(r)
+                    }
+                })
+                return routes
             }
         }
     }
