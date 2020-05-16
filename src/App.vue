@@ -25,7 +25,6 @@
         mounted() {
             const currentUser = firebase.auth.currentUser;
             if (currentUser) {
-                console.log(currentUser)
                 this.$store.commit('users/setLoggedIn', true)
             }
         }
