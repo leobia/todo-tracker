@@ -19,6 +19,16 @@
                             cancelButtonText='No, Thanks'
                             icon="el-icon-info"
                             iconColor="red"
+                            title="Are you sure to unselect all activities?"
+                            @onConfirm="callItADay">
+                        <el-button style="margin-right: 10px" slot="reference" type="success" size="small" icon="el-icon-s-flag">Call it a day
+                        </el-button>
+                    </el-popconfirm>
+                    <el-popconfirm
+                            confirmButtonText='OK'
+                            cancelButtonText='No, Thanks'
+                            icon="el-icon-info"
+                            iconColor="red"
                             title="Are you sure to delete this?"
                             @onConfirm="deleteOldTodos">
                         <el-button slot="reference" type="danger" size="small" icon="el-icon-delete">Delete old done
@@ -85,6 +95,9 @@
                 }
             },
             done(row) {
+                if (row.selected) {
+                    this.select(row)
+                }
                 let done = !row.done;
                 this.$store.commit('todo/modifyTodo', {id: row.id, done})
                 this.$store.dispatch('todo/changeStatusTodo', row);
@@ -96,7 +109,6 @@
                 let todo = {title: this.title}
                 this.$store.dispatch('todo/addTodo', todo);
             },
-
             tableRowClassName({row}) {
                 let output = '';
                 if (row.done) {
@@ -113,6 +125,12 @@
                 if (todosToDelete.length) {
                     this.$store.dispatch('todo/deleteTodos', todosToDelete);
                 }
+            },
+            callItADay() {
+                let selectedTodos = this.todos.filter(t => t.selected);
+                selectedTodos.forEach(todo => {
+                    this.select(todo);
+                })
             },
             ...mapActions('todo', [
                 'retrieveTodos',
