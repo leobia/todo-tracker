@@ -1,6 +1,6 @@
-import db from '../../api/firebase'
+import firebase from '../../api/firebase'
 
-const todosCollection = db.collection("todos");
+const todosCollection = firebase.db.collection("todos");
 const types = {
     RETRIEVE_REQUEST: 'clearTodos',
     RETRIEVE_SUCCESS: 'setTodos',

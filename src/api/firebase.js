@@ -1,4 +1,9 @@
-import * as firebase from "firebase";
+import firebase from 'firebase/app';
+import 'firebase/firestore';
+import 'firebase/auth';
+import 'firebase/analytics';
+import 'firebase/database';
+import 'firebase/app';
 
 var firebaseConfig = {
     apiKey: "AIzaSyDhi4CRK9B172dqzIOgUmztRfX0GkOFu8E",
@@ -11,7 +16,16 @@ var firebaseConfig = {
     measurementId: "G-SCJN9G7PBQ"
 };
 
-firebase.initializeApp(firebaseConfig);
-firebase.analytics()
 
-export default firebase.firestore()
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore()
+const analytics = firebase.analytics()
+const auth = firebase.auth()
+const currentUser = auth.currentUser
+
+export default {
+    db,
+    analytics,
+    auth,
+    currentUser
+}

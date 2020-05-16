@@ -1,6 +1,6 @@
-import db from '../../api/firebase'
+import firebase from '../../api/firebase'
 
-const activitiesCollection = db.collection('day_activities');
+const activitiesCollection = firebase.db.collection('day_activities');
 
 const types = {
     SET_LOADING: 'setLoading',
