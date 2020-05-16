@@ -21,11 +21,10 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore()
 const analytics = firebase.analytics()
 const auth = firebase.auth()
-const currentUser = auth.currentUser
 
 export default {
     db,
     analytics,
     auth,
-    currentUser
+    firestore: firebase.firestore
 }

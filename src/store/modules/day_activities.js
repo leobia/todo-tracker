@@ -83,7 +83,7 @@ const actions = {
         const ids = activities.map(t => t.id);
         commit(types.SET_LOADING, true);
         let i = 0;
-        activitiesCollection.where('id', 'in', ids)
+        activitiesCollection.where(firebase.firestore.FieldPath.documentId(), 'in', ids)
             .get()
             .then((snapshot) => {
                 snapshot.forEach((doc) => {
@@ -121,7 +121,7 @@ const mutations = {
         state.dayActivities.push(newActivity)
     },
 
-    removeTodo(state, oldActivity) {
+    removeActivity(state, oldActivity) {
         state.dayActivities.splice(state.todos.findIndex(t => t.id === oldActivity.id), 1);
     },
 
