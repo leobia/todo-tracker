@@ -14,11 +14,20 @@
 
 <script>
     import NavMenu from "./components/NavMenu";
+    import firebase from './api/firebase'
 
     export default {
         name: 'app',
         components: {
             NavMenu
+        },
+
+        mounted() {
+            const currentUser = firebase.auth.currentUser;
+            if (currentUser) {
+                console.log(currentUser)
+                this.$store.commit('users/setLoggedIn', true)
+            }
         }
     }
 </script>

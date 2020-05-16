@@ -1,5 +1,5 @@
 <template>
-    <div style="position: absolute">
+    <div style="position: absolute" v-show="isLogged">
         <el-menu default-active="2" class="el-menu-vertical-demo"
                  :collapse="isCollapse">
             <el-menu-item index="0" @click="isCollapse = !isCollapse">
@@ -12,6 +12,10 @@
                     <span slot="title">{{route.title}}</span>
                 </el-menu-item>
             </router-link>
+            <el-menu-item index="3" @click="logout">
+                <i class="el-icon-switch-button"></i>
+                <span slot="title">Logout</span>
+            </el-menu-item>
         </el-menu>
     </div>
 </template>
@@ -27,6 +31,8 @@
 </style>
 
 <script>
+    import {mapState} from 'vuex'
+
     export default {
         data() {
             return {
@@ -36,6 +42,11 @@
             };
         },
         methods: {
+            logout() {
+                this.$store.dispatch('users/logout').then(() => {
+                    this.$router.push('login')
+                })
+            }
         },
 
         computed: {
@@ -53,7 +64,10 @@
                     }
                 })
                 return routes
-            }
+            },
+            ...mapState({
+                isLogged: state => state.users.loggedIn
+            })
         }
     }
 </script>
