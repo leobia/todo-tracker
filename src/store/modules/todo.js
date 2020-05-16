@@ -131,7 +131,7 @@ const actions = {
         const ids = todos.map(t => t.id);
         commit(types.SET_LOADING, true);
         let i = 0;
-        todosCollection.where('id', 'in', ids)
+        todosCollection.where(firebase.firestore.FieldPath.documentId(), 'in', ids)
             .get()
             .then((snapshot) => {
                 snapshot.forEach((doc) => {
