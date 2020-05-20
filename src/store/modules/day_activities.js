@@ -12,17 +12,19 @@ const types = {
 function readDbActivity(payload) {
     return {
         id: payload.id,
-        day: payload.data().day,
+        start_date: payload.data().start_date,
+        end_date: payload.data().end_date,
         minutes: payload.data().minutes,
-        todo_id: payload.data().todo_id
+        todo_title: payload.data().todo_title
     }
 }
 
 function initNewActivity(payload) {
     return {
         minutes: payload.minutes,
-        day: payload.update_date,
-        todo_id: payload.id
+        start_date: payload.start_date,
+        end_date: payload.end_date,
+        todo_title: payload.todo_title
     }
 }
 
@@ -32,16 +34,12 @@ const state = () => ({
 });
 
 const getters = {
-    activitiesWithTitle(state, getters, rootState) {
+    activitiesWithTitle(state) {
         let activities = [...state.dayActivities];
+        console.log(activities)
         activities.forEach(a => {
-            let todo = rootState.todo.todos.find(t => t.id === a.todo_id);
-            if (todo) {
-                a.todo_title = todo.title
-            } else {
-                a.todo_title = 'TODO NOT FOUND'
-            }
-            a.date = new Date(a.day.seconds * 1000)
+            a.start_date_obj = new Date(a.start_date.seconds * 1000)
+            a.end_date_obj = new Date(a.end_date.seconds * 1000)
         })
         return activities;
     },

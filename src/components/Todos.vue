@@ -77,6 +77,7 @@
                 if (row.update_date['seconds']) {
                     lastUpdate = new Date(row.update_date.seconds * 1000);
                 }
+
                 const now = new Date();
                 let selected = row.selected;
                 let minutes = row.minutes;
@@ -84,14 +85,15 @@
                 if (selected) {
                     diffMins = Math.round((((now - lastUpdate) % 86400000) % 3600000) / 60000);
                     minutes += diffMins;
-
                 }
                 selected = !selected;
+
+
                 this.$store.commit('todo/modifyTodo', {id: row.id, minutes, selected, update_date: now})
                 this.$store.dispatch('todo/changeSelectTodo', row);
 
                 if (!selected) {
-                    this.$store.dispatch('day_activities/addActivity', {minutes: diffMins, update_date: now, id: row.id})
+                    this.$store.dispatch('day_activities/addActivity', {minutes: diffMins, start_date: lastUpdate, end_date: now, todo_title: row.title})
                 }
             },
             done(row) {

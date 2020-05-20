@@ -5,11 +5,13 @@
 
         <el-table :data="activities"
                   v-loading="loading"
-                  :default-sort = "{prop: 'date', order: 'descending'}"
+                  :default-sort = "{prop: 'start_date_obj', order: 'descending'}"
                   class="report-list">
             <el-table-column label="Todo" sortable prop="todo_title">
             </el-table-column>
-            <el-table-column label="Date" prop="date" sortable :formatter="dateFormatter" :filters="reportsDates" :filter-method="filterHandler">
+            <el-table-column label="Start Date" prop="start_date_obj" sortable :formatter="startDateFormatter" :filters="reportsDates" :filter-method="filterHandler">
+            </el-table-column>
+            <el-table-column label="End Date" prop="end_date_obj" sortable :formatter="endDateFormatter">
             </el-table-column>
             <el-table-column label="Minutes" sortable prop="minutes">
             </el-table-column>
@@ -45,7 +47,7 @@
         computed: {
             reportsDates() {
                 let output = [];
-                let allDates = this.activities.map(a => a.date.withoutTime());
+                let allDates = this.activities.map(a => a.start_date_obj.withoutTime());
 
                 allDates = allDates.filter((date, i, self) =>
                     self.findIndex(d => d.getTime() === date.getTime()) === i
@@ -66,13 +68,16 @@
         },
 
         methods: {
-            dateFormatter(row) {
-                return row.date.toLocaleString()
+            startDateFormatter(row) {
+                return row.start_date_obj.toLocaleString()
+            },
+            endDateFormatter(row) {
+                return row.end_date_obj.toLocaleString()
             },
             deleteOldReports() {
                 let now = new Date();
                 const twoDaysAgo = now.setDate(now.getDate() - 2);
-                const activitiesToDelete = this.activities.filter(t => t.date <= twoDaysAgo);
+                const activitiesToDelete = this.activities.filter(t => t.start_date_obj <= twoDaysAgo);
                 if (activitiesToDelete.length) {
                     this.$store.dispatch('day_activities/deleteActivities', activitiesToDelete);
                 }
